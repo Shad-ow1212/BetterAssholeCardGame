@@ -1,7 +1,7 @@
 # BetterAssholeCardGame
 En gros c'est un jeu du président fait en python, avec l'objectif de proposer des variantes de jeu pour améliorer les parties
 
-# Trucs a faire : 
+## Trucs a faire : 
 - gerer tout ce qu'il se passe quand plus personne ne peut jouer,
 - Faire la regle du "tel carte ou rien"
 - Pouvoir couper ?
