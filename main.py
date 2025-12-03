@@ -80,6 +80,19 @@ def demander(type):
             
             return pli
 
+def absListe(liste):
+    temp = []
+    for l in liste:
+        if l == True:
+            temp.append(1)
+        if l == False:
+            temp.append(0)
+    if sum(temp) == 0:
+        return False
+    elif sum(temp) == len(liste):
+        return True
+    else:
+        return None
 
 class Carte:
     def __init__(self, symbole, valeur):
@@ -169,7 +182,7 @@ while True:
         for j in game.joueurs:
             j.peutJoeur = True
 
-    print(f"\n\n-- Joueur {actuelJoueur} - Tour {nbTour} - Minimun : {valeurMin} - Peut Jouer : {game.joueurs[actuelJoueur].peutJouer} - Dernier Joueur : {dernierJoueur} --")
+    print(f"\n\n-- Joueur {actuelJoueur} - Tour {nbTour} - Minimun : {valeurMin} - Dernier Joueur : {dernierJoueur} --")
     game.joueurs[actuelJoueur].trierMain()
     print(game.joueurs[actuelJoueur].main)
     print("Voici votre main:",
@@ -183,6 +196,7 @@ while True:
 
     if game.joueurs[actuelJoueur].hasCombinaison(typePli) != []:
         if max(game.joueurs[actuelJoueur].hasCombinaison(typePli)) < valeurMin:
+            game.joueurs[actuelJoueur].peutJouer = False
             input("Vous ne pouvez pas jouer le pli actuel !")
         else:
             while True:
@@ -200,7 +214,15 @@ while True:
             game.joueurs[actuelJoueur].retirerCartes(cartesJouees)
             dernierJoueur = actuelJoueur
     else:
+        game.joueurs[actuelJoueur].peutJouer = False
         input("Vous ne pouvez pas jouer le pli actuel !")
+
+    etatJoueur = []
+    for j in game.joueurs:
+        etatJoueur.append(j.peutJouer)
+    print(etatJoueur)
+    if absListe(etatJoueur) == False:
+        print(f"Plus personne ne peut jouer le pli ! Dernier joueur : {dernierJoueur}")
 
     nbTour += 1
     if actuelJoueur < 3:
