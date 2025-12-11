@@ -1,15 +1,14 @@
-l = [True, True, True, True]
+l = [False, False, False, False]
 
 def absListe(liste):
-    temp = []
+    temp = 0
     for l in liste:
         if l == True:
-            temp.append(1)
-        if l == False:
-            temp.append(0)
-    if sum(temp) == 0:
+            temp += 1
+        
+    if temp == 0:
         return False
-    elif sum(temp) == len(liste):
+    elif temp == len(liste):
         return True
     else:
         return None

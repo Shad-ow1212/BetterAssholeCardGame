@@ -81,15 +81,13 @@ def demander(type):
             return pli
 
 def absListe(liste):
-    temp = []
+    temp = 0
     for l in liste:
         if l == True:
-            temp.append(1)
-        if l == False:
-            temp.append(0)
-    if sum(temp) == 0:
+            temp += 1
+    if temp == 0:
         return False
-    elif sum(temp) == len(liste):
+    elif temp == len(liste):
         return True
     else:
         return None
@@ -149,6 +147,7 @@ class GameManager:
         self.deck = []
         self.joueurs = []
         self.actuelJoueur = 0
+        self.dernierJoueur = 0
 
         for i in range(nombreJoueurs):
             self.joueurs.append(Joueur(i))
@@ -165,68 +164,73 @@ class GameManager:
         for joueur in self.joueurs:
             joueur.main = self.deck[index:index + 13]
             index += 13
+    
+    def jouerPli(self, premierJoueur):
+        actuelJoueur = premierJoueur
+        self.dernierJoueur = None
+        nbTour = 0
+        typePli = 0
+        valeurMin = 0
+        pli = True
+        while pli:
+
+            if nbTour == 0 and self.dernierJoueur == None:
+                temp = 0
+                for j in self.joueurs:
+                    j.peutJouer = True
+
+            print(f"\n\n-- Joueur {actuelJoueur} - Tour {nbTour} - Minimun : {valeurMin} - Dernier Joueur : {self.dernierJoueur} --")
+            self.joueurs[actuelJoueur].trierMain()
+            print(self.joueurs[actuelJoueur].main)
+            print("Voici votre main:",
+                "\nVos combinaisons simples :", self.joueurs[actuelJoueur].hasCombinaison(1),
+                "\nVos combinaisons paires :", self.joueurs[actuelJoueur].hasCombinaison(2),
+                "\nVos combinaisons brelans :", self.joueurs[actuelJoueur].hasCombinaison(3),
+                "\nVos combinaisons carrés :", self.joueurs[actuelJoueur].hasCombinaison(4))
+            
+            if nbTour == 0:
+                typePli = demander(["typePli", self.joueurs[actuelJoueur]])
+
+            if self.joueurs[actuelJoueur].hasCombinaison(typePli) != []:
+                if max(self.joueurs[actuelJoueur].hasCombinaison(typePli)) < valeurMin:
+                    self.joueurs[actuelJoueur].peutJouer = False
+                    input("Vous ne pouvez pas jouer le pli actuel !")
+                else:
+                    while True:
+                        print(self.joueurs[actuelJoueur].main)
+                        entree = input("Quelles cartes voulez-vous jouer?\n>")
+
+                        cartesJouees = parserCartes(entree, self.joueurs[actuelJoueur], typePli, valeurMin)
+                        if cartesJouees is not None:
+                            break
+                        print("Veuillez réessayer.")
+                    
+                    valeurMin = cartesJouees[0].valeur
+
+                    print("Vous jouez :", cartesJouees)
+                    self.joueurs[actuelJoueur].retirerCartes(cartesJouees)
+                    self.dernierJoueur = actuelJoueur
+            else:
+                self.joueurs[actuelJoueur].peutJouer = False
+                input("Vous ne pouvez pas jouer le pli actuel !")
+
+            etatJoueur = []
+            for j in self.joueurs:
+                etatJoueur.append(j.peutJouer)
+            print(etatJoueur)
+            if absListe(etatJoueur) == False:
+                pli = False
+
+            nbTour += 1
+            if actuelJoueur < 3:
+                actuelJoueur += 1
+            else:
+                actuelJoueur = 0
+        print(f"Plus personne ne peut jouer le pli ! Dernier joueur : {self.dernierJoueur}")
+    
 
 game = GameManager(4)
 game.creerDeck()
 game.distribuer()
-
-actuelJoueur = 0
-nbTour = 0
-typePli = 0
-valeurMin = 0
-dernierJoueur = None
-
-while True:
-    if nbTour == 0:
-        temp = 0
-        for j in game.joueurs:
-            j.peutJoeur = True
-
-    print(f"\n\n-- Joueur {actuelJoueur} - Tour {nbTour} - Minimun : {valeurMin} - Dernier Joueur : {dernierJoueur} --")
-    game.joueurs[actuelJoueur].trierMain()
-    print(game.joueurs[actuelJoueur].main)
-    print("Voici votre main:",
-        "\nVos combinaisons simples :", game.joueurs[actuelJoueur].hasCombinaison(1),
-        "\nVos combinaisons paires :", game.joueurs[actuelJoueur].hasCombinaison(2),
-        "\nVos combinaisons brelans :", game.joueurs[actuelJoueur].hasCombinaison(3),
-        "\nVos combinaisons carrés :", game.joueurs[actuelJoueur].hasCombinaison(4))
-    
-    if nbTour == 0:
-        typePli = demander(["typePli", game.joueurs[actuelJoueur]])
-
-    if game.joueurs[actuelJoueur].hasCombinaison(typePli) != []:
-        if max(game.joueurs[actuelJoueur].hasCombinaison(typePli)) < valeurMin:
-            game.joueurs[actuelJoueur].peutJouer = False
-            input("Vous ne pouvez pas jouer le pli actuel !")
-        else:
-            while True:
-                print(game.joueurs[actuelJoueur].main)
-                entree = input("Quelles cartes voulez-vous jouer?\n>")
-
-                cartesJouees = parserCartes(entree, game.joueurs[actuelJoueur], typePli, valeurMin)
-                if cartesJouees is not None:
-                    break
-                print("Veuillez réessayer.")
-            
-            valeurMin = cartesJouees[0].valeur
-
-            print("Vous jouez :", cartesJouees)
-            game.joueurs[actuelJoueur].retirerCartes(cartesJouees)
-            dernierJoueur = actuelJoueur
-    else:
-        game.joueurs[actuelJoueur].peutJouer = False
-        input("Vous ne pouvez pas jouer le pli actuel !")
-
-    etatJoueur = []
-    for j in game.joueurs:
-        etatJoueur.append(j.peutJouer)
-    print(etatJoueur)
-    if absListe(etatJoueur) == False:
-        print(f"Plus personne ne peut jouer le pli ! Dernier joueur : {dernierJoueur}")
-
-    nbTour += 1
-    if actuelJoueur < 3:
-        actuelJoueur += 1
-    else:
-        actuelJoueur = 0
-    
+game.jouerPli(0)
+game.jouerPli(game.dernierJoueur)
